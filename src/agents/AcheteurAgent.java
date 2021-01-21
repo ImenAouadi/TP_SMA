@@ -16,19 +16,39 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.gui.GuiAgent;
+import jade.gui.GuiEvent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import jade.gui.GuiAgent;
+import jade.gui.GuiEvent;
 
 
-public class AcheteurAgent extends Agent {
+
+
+public class AcheteurAgent extends GuiAgent {
+	//reference de l'interface graphique
+	protected AcheteurGui gui;
 	private String livre;
-	
+
 	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("serial")
+	//@Override
+	//protected void onGuiEvent1(GuiEvent arg0) 
+	//{}
 	@Override
 	protected void setup ()
-	{   Object[] params = getArguments();
+	{   
+		//coupler l'acheteur avec son interface graphique
+		if(getArguments().length==1)
+		{
+			gui = (AcheteurGui) getArguments()[0];
+			gui.acheteurAgent=this;
+			
+		}
+		
+		Object[] params = getArguments();
 	      livre=params[0].toString();
 	    System.out.println("****************");
 		System.out.println("deploiement de l'agent "+getAID().getName());
@@ -47,14 +67,18 @@ public class AcheteurAgent extends Agent {
 				
 				ACLMessage aclMessage=receive(messageTemplate); 
 				if(aclMessage!=null) {
-					System.out.println("------------------");
+					gui.logMessage(aclMessage);
+					/*System.out.println("------------------");
 					System.out.println("réception de message");
 					System.out.println("Le contenu de ce message: "+aclMessage.getContent());
 					System.out.println("Acte de Communication : "+ACLMessage.getPerformative(aclMessage.getPerformative()));
 					System.out.println("Langue utilisée:"+aclMessage.getLanguage());
 					System.out.println("ontologie: "+aclMessage.getOntology());
 					System.out.println("emmetteur du message :"+aclMessage.getSender());
-					System.out.println("------------------");
+					System.out.println("------------------");*/
+					ACLMessage reply = aclMessage.createReply();
+					reply.setContent("ok pour "+aclMessage.getContent());
+					send(reply);
 				
 				//ACLMessage aclMessage2=new ACLMessage(ACLMessage.INFORM);
 				//aclMessage2.addReceiver(new AID ("vendeur1", AID.ISLOCALNAME));
@@ -215,6 +239,12 @@ public class AcheteurAgent extends Agent {
 		System.out.println("****************");
 		System.out.println("Je suis en train de mourir...");
 		System.out.println("****************");
+	}
+
+	@Override
+	protected void onGuiEvent(GuiEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 
